@@ -18,7 +18,17 @@ export default function NewsPost({searchValue}) {
         fetchPosts();
     }, []);
     
-  
+    useEffect(() => {
+        // Фильтрация постов и обновление состояния posts
+        const filteredPosts = posts.filter(data => {
+            if (data.title.toLowerCase().includes(searchValue.toLowerCase())) {
+                return true;
+            }
+            return false;
+        });
+        setPosts(filteredPosts);
+    }, [searchValue, posts]); // Зависимость от searchValue
+
       posts.forEach((post) => {
         const formatDate = moment(post.createdAt).locale('en-US').format('LL');
       post.createdAt = formatDate;
@@ -26,31 +36,24 @@ export default function NewsPost({searchValue}) {
   return (
     <>
     
-    <p>Количество новостей: {posts.length}</p>
-    {posts
-    .filter((data )=>{
-        if(data.title.toLowerCase().includes(searchValue.toLowerCase())){
-            return true;
-        }
-        return false;
-    })
-    .map((data) => ( 
-            <Row className="m-3 bg-light" key={data.id}>
-                <Col md="3">
-                    <img className='mr-3 img-thumbnail' src={'/images/'+data.image} alt='Логотип' />
-                </Col>
-                <Col md="9">
-                    <h5>{data.title}</h5>
-                    <p>{data.description.slice(0, 100)}...</p>
-                    <p>
-                        <span className='fst-italic'>Дата публикации:</span> {data.createdAt}
-                    </p>
-                    <Link to={`/detailpost/${data.id}`} className="me-1">
-                        Подробнее
-                    </Link>
-                </Col>             
-            </Row>
-     ))}
+   <p>Количество новостей: {posts.length}</p>
+            {posts.map(data => (
+                <Row className="m-3 bg-light" key={data.id}>
+                    <Col md="3">
+                        <img className='mr-3 img-thumbnail' src={'/images/' + data.image} alt='Логотип' />
+                    </Col>
+                    <Col md="9">
+                        <h5>{data.title}</h5>
+                        <p>{data.description.slice(0, 100)}...</p>
+                        <p>
+                            <span className='fst-italic'>Дата публикации:</span> {data.createdAt}
+                        </p>
+                        <Link to={`/detailpost/${data.id}`} className="me-1">
+                            Подробнее
+                        </Link>
+                    </Col>
+                </Row>
+            ))}
        
         
     </>

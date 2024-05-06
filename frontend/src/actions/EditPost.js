@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import {Link } from 'react-router-dom';
 import axios from '../middleware/axios'; 
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 
 export default function EditPost() {
 
- //---------category select для добавления категории в список
+ //---------gener select для добавления категории в список
  const [geners, setGener] =React.useState([]);
  const [name, setName] = React.useState('');
  const [user] = React.useState(jwtDecode(localStorage.getItem('token')));
@@ -24,6 +24,7 @@ export default function EditPost() {
  const [file, setFile] = React.useState('');
  const [oldImage, setOldImage] = React.useState('');
  const [generId, setGenerId] = React.useState(0);
+ const [error, setError] = React.useState(null);
 
  
  //-----для preview выбранной с диска картинки -image
@@ -52,26 +53,59 @@ React.useEffect(() => {
      setName(response.data.user.name);
  };
  getPostById();
-}, [id]);
+}, [id]); 
 //----------сохранение записи в БД и загрузка image на сервер
 const updatePost = async (e) => {
  e.preventDefault();
- await axios.patch(`http://localhost:5000/galery/${id}`, {
-             title: title,
-             description: description,
-             generId: generId,                
-             image: file,
-         });
-         //--upload image server
-         let formData = new FormData();
-         formData.append('file', image.data);
-         await fetch(`http://localhost:5000/image`,{
-             method: 'POST',
-             body: formData,
-         });
-         //end upload server
-         navigate(`/galery`);       
-};
+ const validateForm = () => {
+    let errors = [];
+    if (!title.trim()) {
+        errors.push('Заголовок не может быть пустым');
+    }
+    if (!description.trim()) {
+        errors.push('Описание не может быть пустым');
+    }
+    if (!generId) {
+        errors.push('Не выбран жанр поста');
+    }
+    if (!file) {
+        errors.push('Файл не выбран');
+    }
+    if(description.length>250)
+    {
+        error.push('Превышено количество допустимых символов в описании (250)')
+    }
+    if (errors.length > 0) {
+        setError(errors.join('. '));
+        return false;
+    }
+    
+    return true;
+    };
+    if(validateForm()){
+       try{
+        await axios.patch(`http://localhost:5000/galery/${id}`, {
+                title: title,
+                description: description,
+                generId: generId,                
+                image: file,
+            });
+            //--upload image server
+            let formData = new FormData();
+            formData.append('file', image.data);
+            await fetch(`http://localhost:5000/image`,{
+                method: 'POST',
+                body: formData,
+            });
+            //end upload server
+            navigate(`/galery`);       
+
+        }catch(error){
+            setError(error.response.data.message);
+        } 
+    }
+    
+} 
 return (
  <Container className="mt-1">
      {user && ( // Проверка наличия пользователя
@@ -81,6 +115,7 @@ return (
         {name.toLowerCase() === user.name.toLowerCase() ? (
          <Col md={{span: 7, offset: 2}}>
              <Form onSubmit={updatePost}>
+             {error && <Alert variant="danger">{error}</Alert>}
                  <Form.Group className="mb-3" controlId="formControlText">
                      <Form.Label>Заголовок</Form.Label>
                      <Form.Control 

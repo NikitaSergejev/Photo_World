@@ -3,14 +3,15 @@ import axios from '../middleware/axios';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import moment from 'moment';
-//import {Link} from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 
 export default function GaleryPost({generId}) {
   const [posts, setPosts] = useState([]);
   const [name, setName] = React.useState('');
+  //------------для создания redirect -переход по ссылке
+  const navigate = useNavigate();
    //--------------
   
    React.useEffect(() => {
@@ -28,13 +29,7 @@ const getMe = async () => {
         }
     }
 };
-/*useEffect(() => {
-  const fetchData = async () => {
-    await getPosts();
-  };
 
-  fetchData();
-}, );*/
 useEffect(() => {
   //маршруты, если выбрана или НЕ выбрана категория
   const gener_id = generId > 0 ? `/gener/${generId}` : '';
@@ -46,17 +41,7 @@ useEffect(() => {
   getPosts();
   
 }, [generId]);
-  //Список новостей из БД
-  /*const getPosts = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/galery`, {
-        
-      });
-      setPosts(response.data);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  };*/
+  
   
       posts.forEach((post) => {
         const formatDate = moment(post.createdAt).locale('en-US').format('l');
@@ -64,12 +49,17 @@ useEffect(() => {
     });
  // Функция для удаления поста
  const deletePostGalery = async(id) =>{
-  if (window.confirm('Are you sure you want to delete'+id+'?')){
+  if (window.confirm('Вы действительно хотите удалить пост?')) {
+    try {    
+      // Удаление поста из базы данных
       await axios.delete(`http://localhost:5000/galery/${id}`);
+      
       // Обновляем список постов после удаления
-      const gener_id = generId > 0 ? `/gener/${generId}` : '';
-      const response = await axios.get(`http://localhost:5000/galery${gener_id}`);
-      setPosts(response.data);
+      setPosts(posts.filter(post => post.id !== id));
+    } catch (error) {
+      console.error('Ошибка при удалении:', error);
+    }
+    navigate('/galery')
   }
 };
  
@@ -96,7 +86,7 @@ useEffect(() => {
                 <button className="btn btn-primary">Подробнее</button>
               </Link>
               {name.toLowerCase() === data.user.name.toLowerCase() || name === 'admin' ? (
-                <Button onClick={() => deletePostGalery(data.id)} variant='danger' size='sm'>Delete</Button>
+                <Button onClick={() => deletePostGalery(data.id, data.image)} variant='danger' size='sm'>Delete</Button>
               ) : null}
             </Card.Body>
           </Card>
