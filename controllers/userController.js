@@ -9,6 +9,21 @@ export const Register = async (req, res) => {
         //читаем данные, переданные для регистрации (из формы)
         const {name, email, password, confPassword, avatarUrl} = req.body;
 
+        // Проверка на количество символов для имени
+        if (name.length < 3 || name.length > 20) {
+            return res.status(400).json({ msg: 'Имя должно содержать от 3 до 20 символов' });
+        }
+
+        // Проверка на количество символов для email
+        if (email.length < 6 || email.length > 30) {
+            return res.status(400).json({ msg: 'Email должен содержать от 6 до 30 символов' });
+        }
+
+        // Проверка на количество символов для пароля
+        if (password.length < 6 || password.length > 20) {
+            return res.status(400).json({ msg: 'Пароль должен содержать от 6 до 20 символов' });
+        }
+        
         // Проверка, существует ли пользователь с таким email
         const existingEmailUser = await Users.findOne({ where: { email: email } });
         if (existingEmailUser) {

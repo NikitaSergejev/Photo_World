@@ -41,6 +41,54 @@ export const getPostByIdGener = async(req, res) => {
 };
 //-----------------------------------------------
 //create post
+/*export const createPostGalery = async(req, res) => {
+    try {
+        const { title, description, genre, image } = req.body;
+
+        // Проверка на обязательные поля
+        if (!title || !description || !image) {
+            return res.status(400).json({ message: 'Не все обязательные поля заполнены' });
+        }
+
+        // Проверка длины описания
+        if (description.length < 250) {
+            return res.status(400).json({ message: 'Описание поста должно содержать не менее 250 символов' });
+        }
+
+        // Проверка формата изображения
+        const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedFormats.includes(image.type)) {
+            return res.status(400).json({ message: 'Фотография должна быть в форматах JPEG, JPG или PNG' });
+        }
+
+        // Проверка максимального размера изображения
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (image.size > maxSize) {
+            return res.status(400).json({ message: 'Максимальный размер изображения - 10MB' });
+        }
+
+        // Проверка на содержание запрещенных элементов в заголовке и описании
+        /*const forbiddenWords = ['ненормативная лексика', 'контент для взрослых', 'порнография'];
+        const containsForbiddenWords = forbiddenWords.some(word => title.includes(word) || description.includes(word));
+        if (containsForbiddenWords) {
+            return res.status(400).json({ message: 'Заголовок или описание содержат запрещенные элементы' });
+        }*/
+
+        // Проверка на содержание запрещенных элементов на фотографии
+       /* const forbiddenElements = ['насилие', 'жестокость', 'нелегальные вещества', 'сексуальные изображения', 'религиозная пропаганда', 'политическая пропаганда', 'алкоголь', 'наркотики'];
+        const containsForbiddenElements = forbiddenElements.some(element => description.includes(element));
+        if (containsForbiddenElements) {
+            return res.status(400).json({ message: 'Фотография содержит запрещенные элементы' });
+        }
+
+        // Создание поста
+        await Galery.create(req.body);
+        res.json({ message: 'Пост в галерее успешно создан' });
+    } catch(error) {
+        res.status(500).json({ message: error.message });
+    }
+};*/
+
 export const createPostGalery = async(req, res) => {
     try{
         await Galery.create(req.body);
